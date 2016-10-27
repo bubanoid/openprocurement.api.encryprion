@@ -29,18 +29,28 @@ class EncryptionTest(unittest.TestCase):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(decrypted_file, 'Very important information')
 
+        # Encrypt with empty key
         with self.assertRaises(webtest.AppError):
             resp = self.app.post('/encrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
+        # Encrypt with Invalid key
         with self.assertRaises(webtest.AppError):
             resp = self.app.post('/encrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
+        # Encrypt without key
+        with self.assertRaises(webtest.AppError):
+            resp = self.app.post('/encrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
 
+        # Decrypt with empty key
         with self.assertRaises(webtest.AppError):
             response = self.app.post('/decrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
+        # Decrypt with invalid key
         with self.assertRaises(webtest.AppError):
             response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
-        # self.assertEqual(response.status, '200 OK')
-        # self.assertNotEqual(encrypted_file, 'Very important information')
-
+        # Decrypt without key
+        with self.assertRaises(webtest.AppError):
+            response = self.app.post('/decrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
+        # Decrypt with other key
+        with self.assertRaises(webtest.AppError):
+            response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a7bfc49610fcd219021c86749f3ee09e1324d9c4de13f0d5f8cb569dd319e4e4'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
 
 
 def suite():

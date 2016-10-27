@@ -1,10 +1,23 @@
 import nacl.secret
 import nacl.utils
+from nacl.exceptions import CryptoError
 from StringIO import StringIO
 from .response import FileObjResponse
 import json
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
+
+error = {
+    'message': {
+        'status': 'error',
+        'errors': [{
+            'description': '',
+            'location': 'body',
+            'name': 'key'
+        }]
+    },
+    'code': 422
+}
 
 class ValidationFailure(Exception):
     def __init__(self, msg):
@@ -32,40 +45,28 @@ def encrypt_file(key, fileobj, nonce=None):
 
 def decrypt_file(key, fileobj):
     box = nacl.secret.SecretBox(key)
-    decrypted = box.decrypt(fileobj.read())
+    try:
+        decrypted = box.decrypt(fileobj.read())
+    except CryptoError as e:
+        error['message']['errors'][0]['description'] = 'Decryption failed. Ciphertext failed verification.'
+        error['code'] = 500
+        raise ValidationFailure(error)
     return FileObjResponse(StringIO(decrypted))
 
 
 def validate_key(view_callable):
     def inner(context, request):
-        key = request.params.get('key', '')
+        key = request.params.get('key')
+        if key == None:
+            error['message']['errors'][0]['description'] = 'Key missed.'
+            raise ValidationFailure(error)
         if len(key) != 64:
-            error = {
-                'message': {
-                    'status': 'error',
-                    'errors': [{
-                        'description': 'Key missed or short. The key must be exactly 32 bytes long',
-                        'location': 'body',
-                        'name': 'key'
-                    }]
-                },
-                'code': 422
-            }
+            error['message']['errors'][0]['description'] = 'The key must be exactly 32 bytes long.'
             raise ValidationFailure(error)
         try:
             key.decode('hex')
         except TypeError:
-            error = {
-                'message': {
-                    'status': 'error',
-                    'errors': [{
-                        'description': 'Invalid key: Non-hexadecimal digit found',
-                        'location': 'body',
-                        'name': 'key'
-                    }]
-                },
-                'code': 422
-            }
+            error['message']['errors'][0]['description'] = 'Invalid key: Non-hexadecimal digit found.'
             raise ValidationFailure(error)
         return view_callable(context, request)
     return inner
