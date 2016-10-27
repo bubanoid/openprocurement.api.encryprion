@@ -65,6 +65,10 @@ def validate_key(view_callable):
             error['message']['errors'][0]['description'] = 'The key must be exactly 32 bytes long.'
             error['code'] = 422
             raise ValidationFailure(error)
+        if len(key) != 64:
+            error['code'] = 422
+            error['message']['errors'][0]['description'] = 'The key must be exactly 32 bytes long.'
+            raise ValidationFailure(error)
         try:
             key.decode('hex')
         except TypeError:
