@@ -20,14 +20,26 @@ class EncryptionTest(unittest.TestCase):
 
     def test_flow(self):
         key = self.app.get('/').json['key']
-        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))])) 
+        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
         encrypted_file = response.body
         self.assertEqual(response.status, '200 OK')
         self.assertNotEqual(encrypted_file, 'Very important information')
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', encrypted_file))])) 
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
         decrypted_file = response.body
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(decrypted_file, 'Very important information')
+
+        with self.assertRaises(webtest.AppError):
+            resp = self.app.post('/encrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
+        with self.assertRaises(webtest.AppError):
+            resp = self.app.post('/encrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]))
+
+        with self.assertRaises(webtest.AppError):
+            response = self.app.post('/decrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
+        with self.assertRaises(webtest.AppError):
+            response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]))
+        # self.assertEqual(response.status, '200 OK')
+        # self.assertNotEqual(encrypted_file, 'Very important information')
 
 
 
