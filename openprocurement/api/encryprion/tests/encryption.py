@@ -32,43 +32,43 @@ class EncryptionTest(unittest.TestCase):
         # Encrypt without file
         response = self.app.post('/encrypt_file', collections.OrderedDict([('key', key)]), status=400)
         self.assertEqual(response.status, '400 Bad Request')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Missed file.')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nMissed file.\n\n')
         # Decrypt decrypted_file
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', decrypted_file))]), status=500)
-        self.assertEqual(response.status, '500 Internal Server Error')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Decryption failed. Ciphertext failed verification')
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', decrypted_file))]), status=400)
+        self.assertEqual(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nDecryption failed. Ciphertext failed verification\n\n')
         # Decrypt without file
         response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key)]), status=400)
         self.assertEqual(response.status, '400 Bad Request')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Missed encrypted file.')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nMissed encrypted file.\n\n')
         # Encrypt with empty key
-        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'The key must be exactly 32 bytes long.')
+        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nThe key must be exactly 32 bytes long.\n\n')
         # Encrypt with Invalid key
-        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Invalid key: Non-hexadecimal digit found.')
+        response = self.app.post('/encrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nInvalid key: Non-hexadecimal digit found.\n\n')
         # Encrypt without key
-        response = self.app.post('/encrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Key missed.')
+        response = self.app.post('/encrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', 'Very important information'))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nKey missed.\n\n')
         # Decrypt with empty key
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'The key must be exactly 32 bytes long.')
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', ''), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nThe key must be exactly 32 bytes long.\n\n')
         # Decrypt with invalid key
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Invalid key: Non-hexadecimal digit found.')
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a514cdc3c198421de6a746961d34f20147b7614c85a39297ffb07570b28hello'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nInvalid key: Non-hexadecimal digit found.\n\n')
         # Decrypt without key
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=422)
-        self.assertIn(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Key missed.')
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nKey missed.\n\n')
         # Decrypt with other key
-        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a7bfc49610fcd219021c86749f3ee09e1324d9c4de13f0d5f8cb569dd319e4e4'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=500)
-        self.assertIn(response.status, '500 Internal Server Error')
-        self.assertEqual(response.json_body[u'errors'][0][u'description'], u'Decryption failed. Ciphertext failed verification')
+        response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a7bfc49610fcd219021c86749f3ee09e1324d9c4de13f0d5f8cb569dd319e4e4'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=400)
+        self.assertIn(response.status, '400 Bad Request')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nDecryption failed. Ciphertext failed verification\n\n')
 
 
 def suite():
