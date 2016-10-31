@@ -18,8 +18,7 @@ def generate_key_view(request):
 @view_config(route_name='encrypt_file', decorator=(validate_key,))
 def encrypt_file_view(request):
     key = request.POST.get('key').decode('hex')
-    encrypted_file = request.POST.get('file')
-    if encrypted_file == None:
+    if not 'file' in request.POST:
         raise HTTPBadRequest('Missed file.')
     request.POST.get('file').file.seek(0)
     return encrypt_file(key, request.POST.get('file').file, nonce=request.POST.get('nonce'))
@@ -28,8 +27,7 @@ def encrypt_file_view(request):
 @view_config(route_name='decrypt_file', decorator=(validate_key,))
 def decrypt_file_view(request):
     key = request.POST.get('key').decode('hex')
-    encrypted_file = request.POST.get('file')
-    if encrypted_file == None:
+    if not 'file' in request.POST:
         raise HTTPBadRequest('Missed encrypted file.')
     request.POST.get('file').file.seek(0)
     return decrypt_file(key, request.POST.get('file').file)

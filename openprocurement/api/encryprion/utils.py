@@ -3,9 +3,7 @@ import nacl.utils
 from nacl.exceptions import CryptoError
 from StringIO import StringIO
 from .response import FileObjResponse
-import json
 from pyramid.httpexceptions import HTTPBadRequest
-
 
 def generate_secret_key():
     return nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE).encode('hex')
