@@ -1,27 +1,28 @@
-import nacl.secret
-import nacl.utils
-from nacl.exceptions import CryptoError
+import libnacl.secret
+import libnacl.utils
+from libnacl import CryptError
 from StringIO import StringIO
 from .response import FileObjResponse
 from pyramid.httpexceptions import HTTPBadRequest
 
+
 def generate_secret_key():
-    return nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE).encode('hex')
+    return libnacl.utils.salsa_key().encode('hex')
 
 
 def encrypt_file(key, fileobj, nonce=None):
     if nonce is None:
-        nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
-    box = nacl.secret.SecretBox(key)
+        nonce = libnacl.utils.rand_nonce()
+    box = libnacl.secret.SecretBox(key)
     encrypted = box.encrypt(fileobj.read(), nonce)
     return FileObjResponse(StringIO(encrypted))
 
 
 def decrypt_file(key, fileobj):
-    box = nacl.secret.SecretBox(key)
+    box = libnacl.secret.SecretBox(key)
     try:
         decrypted = box.decrypt(fileobj.read())
-    except CryptoError as e:
+    except ValueError as e:
         raise HTTPBadRequest(e.message)
     return FileObjResponse(StringIO(decrypted))
 

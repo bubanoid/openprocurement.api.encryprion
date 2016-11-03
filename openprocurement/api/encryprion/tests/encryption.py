@@ -36,7 +36,7 @@ class EncryptionTest(unittest.TestCase):
         # Decrypt decrypted_file
         response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key), ('file', webtest.forms.Upload('filename.txt', decrypted_file))]), status=400)
         self.assertEqual(response.status, '400 Bad Request')
-        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nDecryption failed. Ciphertext failed verification\n\n')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nFailed to decrypt message\n\n')
         # Decrypt without file
         response = self.app.post('/decrypt_file', collections.OrderedDict([('key', key)]), status=400)
         self.assertEqual(response.status, '400 Bad Request')
@@ -68,7 +68,7 @@ class EncryptionTest(unittest.TestCase):
         # Decrypt with other key
         response = self.app.post('/decrypt_file', collections.OrderedDict([('key', 'a7bfc49610fcd219021c86749f3ee09e1324d9c4de13f0d5f8cb569dd319e4e4'), ('file', webtest.forms.Upload('filename.txt', encrypted_file))]), status=400)
         self.assertIn(response.status, '400 Bad Request')
-        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nDecryption failed. Ciphertext failed verification\n\n')
+        self.assertEqual(response.body, '400 Bad Request\n\nThe server could not comply with the request since it is either malformed or otherwise incorrect.\n\n\nFailed to decrypt message\n\n')
 
 
 def suite():

@@ -6,7 +6,7 @@ version = '1.0'
 requires = [
     'setuptools',
     'pyramid',
-    'PyNaCl',
+    'libnacl',
 ]
 
 test_requires = requires + [
