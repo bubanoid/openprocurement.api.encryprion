@@ -20,7 +20,8 @@ def encrypt_file_view(request):
     if 'file' not in request.POST:
         raise HTTPBadRequest('Missed file.')
     request.POST.get('file').file.seek(0)
-    return encrypt_file(key, request.POST.get('file').file, nonce=request.POST.get('nonce'))
+    return encrypt_file(key, request.POST.get('file').file,
+                        nonce=request.POST.get('nonce'))
 
 
 @view_config(route_name='decrypt_file', decorator=(validate_key,))
